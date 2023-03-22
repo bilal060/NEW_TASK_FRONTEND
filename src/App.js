@@ -1,25 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
+import { useLocation } from 'react-router-dom';
+import '../src/Common/common.css';
+import ContentRoutes from './Common/Content/ContentRoutes';
+import AppLayout from './Common/Layout';
+import RegistrationRoutes from './Common/Registration/routes';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const homepage = ['/newsfeed', '/articles',]
+  const location = useLocation();
+
+  if (homepage.includes(location.pathname)) {
+    return (
+      <AppLayout>
+        <ContentRoutes />
+      </AppLayout>
+    );
+  }
+  else
+    return (
+      <RegistrationRoutes />
+    );
 }
 
 export default App;
