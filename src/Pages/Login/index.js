@@ -14,12 +14,14 @@ const LoginPage = () => {
         email: '',
         password: ''
     });
+    const [loading, setloading] = useState(true);
 
     const [modalText, setmodalText] = useState("");
 
     const API_URI = 'http://127.0.0.1:8000/api/login';
     const postLoginData = async () => {
         try {
+            setloading(false)
             const fetchData = await axios.post(API_URI, loginDetails)
             localStorage.setItem("token", fetchData.data.token?.id);
             localStorage.setItem("userdata", JSON.stringify(fetchData.data.user));
@@ -28,6 +30,7 @@ const LoginPage = () => {
         } catch (error) {
             console.log(error)
             handleShow();
+            setloading(true)
             setmodalText("Login failed!! Please check your credentials.");
         }
     }
@@ -48,6 +51,10 @@ const LoginPage = () => {
 
     return (
         <>
+            {!loading &&
+                <div className='loader'>
+                </div>
+            }
             <div className='login-page container'>
                 {isloggedin &&
                     <Navigate to="/newsfeed" replace={true} />

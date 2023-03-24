@@ -6,6 +6,8 @@ import { Link, Navigate } from 'react-router-dom';
 
 const SignupPage = () => {
     const [isSignedIn, setisSignedIn] = useState(false);
+    const [loading, setloading] = useState(true);
+
     const [signinDetails, setSigninDetails] = useState({
         name: '',
         email: '',
@@ -13,18 +15,16 @@ const SignupPage = () => {
         password_confirmation: '',
     });
 
-    const [signin, setSignin] = useState([]);
 
     const API_URI = 'http://127.0.0.1:8000/api/register';
     const postSigninData = async () => {
         try {
+            setloading(false)
             const fetchData = await axios.post(API_URI, signinDetails)
-            setSignin(fetchData)
-            alert(fetchData.data.message)
             localStorage.setItem("userdata", JSON.stringify(fetchData.data.user));
             setisSignedIn(true);
-
-        } catch (error) {
+        }
+        catch (error) {
             console.log(error)
             alert("Sign in failed please check your credentials!!")
         }
@@ -44,6 +44,10 @@ const SignupPage = () => {
     }
     return (
         <>
+            {!loading &&
+                <div className='loader'>
+                </div>
+            }
             <div className='signup-page container'>
                 {isSignedIn &&
                     <Navigate to="/newsfeed" replace={true} />
