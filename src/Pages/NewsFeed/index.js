@@ -20,16 +20,6 @@ const selectByCatagory = [
     { value: 'technology', label: 'technology' },
 
 ]
-const selectByAuthor = [
-    { value: '', label: 'All Authors' },
-    { value: 'Elliot Smith', label: 'Elliot Smith' },
-    { value: 'Paul Gutierrez', label: 'Paul Gutierrez' },
-    { value: 'Denise Wee', label: 'Denise Wee' },
-    { value: 'Scott Thompson', label: 'Scott Thompson' },
-    { value: 'Madison Williams', label: 'Madison Williams' },
-]
-
-// const APIURl = process.env.REACT_APP_API_URL;
 
 
 const NewsFeed = () => {
@@ -39,12 +29,10 @@ const NewsFeed = () => {
     const [selectedCatagory, setselectedCatagory] = useState('');
     const [loading, setloading] = useState(false);
     const [authors, setAuthors] = useState([]);
-
+    const [getNews, setGetNews] = useState([]);
 
 
     const [api_url, setapi_url] = useState('http://127.0.0.1:8000/api/news');
-    const [getNews, setGetNews] = useState([]);
-
     const getNewsData = async () => {
         try {
             const fetchData = await axios.get(api_url)
@@ -80,13 +68,9 @@ const NewsFeed = () => {
         getAuthor()
     }, [selectedAuthor, selectedCatagory])
 
-    console.log(authors, "authots")
-
-
     useEffect(() => {
         getNewsData()
     }, [api_url])
-    console.log(api_url)
 
 
     return (
@@ -163,8 +147,6 @@ const NewsFeed = () => {
                 })}
             </div>
             <div className='row m-0 pt-5'>
-                {/* {selectedAuthor && getNews?.map((data, index) => { */}
-                {/* return ( */}
                 {getNews && selectedAuthor && <div className=' col-lg-4 col-md-6 col-12 p-0 pb-3 news' >
                     <div className='card-main'>
                         <div className='card-info '>
@@ -183,8 +165,6 @@ const NewsFeed = () => {
                         </div>
                     </div>
                 </div>}
-                {/* ) */}
-                {/* })} */}
             </div>
 
         </div>
