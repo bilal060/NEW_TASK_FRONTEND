@@ -5,12 +5,12 @@ import noImage from '../../Assets/Images/noImage.jpg'
 
 
 const selectBySource = [
-    { value: 'getnewsapi', label: 'NewsAPI' },
+    { value: 'news', label: 'NewsAPI' },
     { value: 'opennews', label: 'OpenNews' },
     { value: 'newscred', label: 'NewsCred' },
 ]
 const selectByCatagory = [
-    { value: '', label: 'All Categories' },
+    // { value: '', label: 'All Categories' },
     { value: 'business', label: 'business' },
     { value: 'entertainment', label: 'entertainment' },
     { value: 'general', label: 'general' },
@@ -21,24 +21,28 @@ const selectByCatagory = [
 
 ]
 const selectByAuthor = [
-    { value: 'opennews', label: 'OpenNews' },
-    { value: 'bbcnews', label: 'BBC News' },
-    { value: 'newscred', label: 'NewsCred' },
+    { value: '', label: 'All Authors' },
+    { value: 'Elliot Smith', label: 'Elliot Smith' },
+    { value: 'Paul Gutierrez', label: 'Paul Gutierrez' },
+    { value: 'Denise Wee', label: 'Denise Wee' },
+    { value: 'Scott Thompson', label: 'Scott Thompson' },
+    { value: 'Madison Williams', label: 'Madison Williams' },
 ]
 
-const APIURl = process.env.REACT_APP_API_URL;
+// const APIURl = process.env.REACT_APP_API_URL;
 
 
 const NewsFeed = () => {
 
     const [selectedAuthor, setselectedAuthor] = useState('');
-    const [selectedSource, setselectedSource] = useState("getnewsapi");
+    const [selectedSource, setselectedSource] = useState("news");
     const [selectedCatagory, setselectedCatagory] = useState('');
     const [loading, setloading] = useState(false);
+    const [authors, setAuthors] = useState([]);
 
-    console.log(APIURl, "api")
 
-    const [api_url, setapi_url] = useState('http://127.0.0.1:8000/api/getnewsapi');
+
+    const [api_url, setapi_url] = useState('http://127.0.0.1:8000/api/news');
     const [getNews, setGetNews] = useState([]);
 
     const getNewsData = async () => {
@@ -46,33 +50,45 @@ const NewsFeed = () => {
             const fetchData = await axios.get(api_url)
             setGetNews(fetchData.data)
             setloading(true)
+            console.log(fetchData.data)
+
         } catch (error) {
             setloading(true)
+            console.log(error)
+            alert("Failed to process");
+            setGetNews(null)
+
+        }
+    }
+    const getAuthor = async () => {
+        try {
+            const fetchData = await axios.get(`http://localhost:8000/api/author/${selectedCatagory}`)
+            const finalauthors = await fetchData;
+            const data = finalauthors.data.map((data) => {
+                return {
+                    label: data,
+                    value: data
+                }
+            })
+            setAuthors(data)
+            console.log(fetchData.data, "authots")
+        } catch (error) {
             console.log(error)
         }
     }
     useEffect(() => {
+        getAuthor()
+    }, [selectedAuthor, selectedCatagory])
+
+    console.log(authors, "authots")
+
+
+    useEffect(() => {
         getNewsData()
-        window.addEventListener('load', getNewsData)
-        return () => {
-            window.removeEventListener('load', getNewsData)
-        }
     }, [api_url])
     console.log(api_url)
 
 
-    // const filterSource = (source) => {
-    //     console.log(api_url)
-    //     setselectedSource(source);
-    //     setapi_url(`http://127.0.0.1:8000/api/${selectedSource}`);
-    //     getNewsData();
-    // }
-    // const filterCatagory = (source) => {
-    //     console.log(api_url)
-    //     setselectedCatagory(source);
-    //     setapi_url(`http://127.0.0.1:8000/api/${selectedSource}/${selectedCatagory}`);
-    //     getNewsData();
-    // }
     return (
         <div className='news-feed'>
             {!loading &&
@@ -89,9 +105,8 @@ const NewsFeed = () => {
                         isClearable={false}
                         onChange={(choice) => {
                             setselectedSource(choice.value)
-                            setapi_url(`http://127.0.0.1:8000/api/${choice.value}/${selectedCatagory}`)
+                            setapi_url(`http://127.0.0.1:8000/api/${choice.value}/${+ selectedCatagory}`)
                             setloading(false)
-                            console.log(choice)
                         }}
                     />
                 </div>
@@ -103,7 +118,7 @@ const NewsFeed = () => {
                         isClearable={false}
                         onChange={(choice) => {
                             setselectedCatagory(choice.value)
-                            setapi_url(`http://127.0.0.1:8000/api/${selectedSource}/${choice.value}`)
+                            setapi_url(`http://127.0.0.1:8000/api/${selectedSource}/${choice.value}${selectedAuthor ? `/${selectedAuthor}` : ''}`)
                             setloading(false)
                         }}
                     />
@@ -111,37 +126,67 @@ const NewsFeed = () => {
                 <div className='form-control'>
                     <label>Select by Aurthor</label>
                     <Select
-                        options={selectByAuthor}
+                        options={authors}
                         className="select-react"
                         isClearable={false}
-                        onChange={(choice) => setselectedAuthor(choice.value)}
+                        onChange={(choice) => {
+                            setselectedAuthor(choice.value)
+                            setapi_url(`http://127.0.0.1:8000/api/${selectedCatagory ? selectedSource : 'newsbyAuthor'}${selectedCatagory ? `/${selectedCatagory}` : ''}/${choice.value.replace(/\s/g, '_')}`)
+                            setloading(false)
+                        }}
                     />
                 </div>
             </div>
+
             <div className='row m-0 pt-5'>
-                {loading && (getNews.articles || []).map((nft, index) => {
+                {loading && (getNews?.articles || []).map((data, index) => {
                     return (
                         <div className=' col-lg-4 col-md-6 col-12 p-0 pb-3 news' key={index}>
                             <div className='card-main'>
                                 <div className='card-info '>
                                     <div>
                                         <div className='card-header bg-transparent px-0 pt-0'>
-                                            <h3 className='font-20 font-weight-700'>{nft.title}</h3>
+                                            <h3 className='font-20 font-weight-700'>{data.title}</h3>
                                         </div>
                                         <div className=''>
-                                            <img src={nft?.urlToImage || noImage} alt='' className='w-100 my-3 rounded-8px' />
+                                            <img src={data?.urlToImage || noImage} alt='' className='w-100 my-3 rounded-8px' />
                                             <div className='news-content'>
-                                                <p className='font-14 text-blackish font-weight-500 news-content'>{nft.content || 'Content not available!!!'}</p>
+                                                <p className='font-14 text-blackish font-weight-500 news-content'>{data.content || 'Content not available!!!'}</p>
                                             </div>
                                         </div>
                                     </div>
-                                    <a href={nft.url} target="_blank" rel="noreferrer" className="text-blue font-weight-600"><u>View more</u></a>
+                                    <a href={data.url} target="_blank" rel="noreferrer" className="text-blue font-weight-600"><u>View more</u></a>
                                 </div>
                             </div>
                         </div>
                     )
                 })}
             </div>
+            <div className='row m-0 pt-5'>
+                {/* {selectedAuthor && getNews?.map((data, index) => { */}
+                {/* return ( */}
+                {getNews && selectedAuthor && <div className=' col-lg-4 col-md-6 col-12 p-0 pb-3 news' >
+                    <div className='card-main'>
+                        <div className='card-info '>
+                            <div>
+                                <div className='card-header bg-transparent px-0 pt-0'>
+                                    <h3 className='font-20 font-weight-700'>{getNews[0]?.title}</h3>
+                                </div>
+                                <div className=''>
+                                    <img src={getNews[0]?.urlToImage || noImage} alt='' className='w-100 my-3 rounded-8px' />
+                                    <div className='news-content'>
+                                        <p className='font-14 text-blackish font-weight-500 news-content'>{getNews[0]?.content || 'Content not available!!!'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href={getNews[0]?.url} target="_blank" rel="noreferrer" className="text-blue font-weight-600"><u>View more</u></a>
+                        </div>
+                    </div>
+                </div>}
+                {/* ) */}
+                {/* })} */}
+            </div>
+
         </div>
     )
 }

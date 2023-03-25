@@ -17,8 +17,9 @@ const AppHeader = () => {
             <div className='container gap-16px'>
                 <p className='font-24 font-weight-700'>Logo</p>
                 <div className='d-flex align-items-center gap-16px'>
-                    <Link to={`/newsfeed`} className={`w-100 ${'/newsfeed' === Location.pathname ? 'header-item-active' : ''} header-item`}>News Feed</Link>
-                    <Link to={`/articles`} className={`w-100 ${'/articles' === Location.pathname ? 'header-item-active' : ''} header-item`}>Articles</Link>
+                    <p className={`w-100 header-item-active header-item cr-p`}>News Feed</p>
+                    {/* <Link to={`/newsfeed`} className={`w-100 ${'/newsfeed' === Location.pathname ? 'header-item-active' : ''} header-item`}>News Feed</Link> */}
+                    {/* <Link to={`/articles`} className={`w-100 ${'/articles' === Location.pathname ? 'header-item-active' : ''} header-item`}>Articles</Link> */}
                 </div>
                 <div className='d-md-flex d-none align-items-sm-center gap-16px h-100'>
                     <div className=''>
