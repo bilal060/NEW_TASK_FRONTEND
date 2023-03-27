@@ -6,11 +6,10 @@ import noImage from '../../Assets/Images/noImage.jpg'
 
 const selectBySource = [
     { value: 'news', label: 'NewsAPI' },
-    { value: 'opennews', label: 'OpenNews' },
+    { value: 'NYTnews', label: 'NYTnews' },
     { value: 'newscred', label: 'NewsCred' },
 ]
 const selectByCatagory = [
-    // { value: '', label: 'All Categories' },
     { value: 'business', label: 'business' },
     { value: 'entertainment', label: 'entertainment' },
     { value: 'general', label: 'general' },
@@ -18,9 +17,14 @@ const selectByCatagory = [
     { value: 'science', label: 'science' },
     { value: 'sports', label: 'sports' },
     { value: 'technology', label: 'technology' },
-
 ]
-
+const selectByCatagoryS2 = [
+    { value: 'arts', label: 'arts' },
+    { value: 'home', label: 'home' },
+    { value: 'science', label: 'science' },
+    { value: 'us', label: 'us' },
+    { value: 'world', label: 'world' },
+]
 
 const NewsFeed = () => {
 
@@ -89,7 +93,7 @@ const NewsFeed = () => {
                         isClearable={false}
                         onChange={(choice) => {
                             setselectedSource(choice.value)
-                            setapi_url(`http://127.0.0.1:8000/api/${choice.value}/${+ selectedCatagory}`)
+                            setapi_url(`http://127.0.0.1:8000/api/${choice.value}`)
                             setloading(false)
                         }}
                     />
@@ -97,7 +101,7 @@ const NewsFeed = () => {
                 <div className='form-control'>
                     <label>Select by Category</label>
                     <Select
-                        options={selectByCatagory}
+                        options={selectedSource === "news" ? selectByCatagory : selectByCatagoryS2}
                         className="select-react"
                         isClearable={false}
                         onChange={(choice) => {
@@ -124,6 +128,11 @@ const NewsFeed = () => {
 
             <div className='row m-0 pt-5'>
                 {loading && (getNews?.articles || []).map((data, index) => {
+                    {/* const imgUrl = data?.media[0]?.['media-metadata'][2]?.url;
+                    const imgUrl2 = data?.multimedia[1]?.url;
+                    console.log(imgUrl)
+                    console.log(imgUrl2) */}
+
                     return (
                         <div className=' col-lg-4 col-md-6 col-12 p-0 pb-3 news' key={index}>
                             <div className='card-main'>
@@ -133,9 +142,13 @@ const NewsFeed = () => {
                                             <h3 className='font-20 font-weight-700'>{data.title}</h3>
                                         </div>
                                         <div className=''>
-                                            <img src={data?.urlToImage || noImage} alt='' className='w-100 my-3 rounded-8px' />
+                                            {selectedSource === "news" ? <img src={data?.urlToImage || noImage} alt='' className='w-100 my-3 rounded-8px' /> : ''}
+                                            {selectedSource === "NYTnews" ? <> {!selectedCatagory ? <img src={data?.media[0]?.['media-metadata'][2]?.url || noImage} alt='' className='w-100 my-3 rounded-8px' /> : <img src={data?.multimedia[1]?.url || noImage} alt='' className='w-100 my-3 rounded-8px' />}</> : ''}
+                                            {/* {selectedSource === "NYTnews" ? <img src={data?.multimedia[1]?.url || noImage} alt='' className='w-100 my-3 rounded-8px' /> : ''} */}
+
+
                                             <div className='news-content'>
-                                                <p className='font-14 text-blackish font-weight-500 news-content'>{data.content || 'Content not available!!!'}</p>
+                                                <p className='font-14 text-blackish font-weight-500 news-content'>{data.content || data.abstract || 'Content not available!!!'}</p>
                                             </div>
                                         </div>
                                     </div>
