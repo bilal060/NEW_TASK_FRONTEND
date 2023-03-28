@@ -7,7 +7,7 @@ import noImage from '../../Assets/Images/noImage.jpg'
 const selectBySource = [
     { value: 'news', label: 'NewsAPI' },
     { value: 'NYTnews', label: 'NYTnews' },
-    { value: 'newscred', label: 'NewsCred' },
+    { value: 'get-articles', label: 'NewsApi.Ai' },
 ]
 const selectByCatagory = [
     { value: 'business', label: 'business' },
@@ -24,6 +24,11 @@ const selectByCatagoryS2 = [
     { value: 'science', label: 'science' },
     { value: 'us', label: 'us' },
     { value: 'world', label: 'world' },
+]
+const selectByCatagoryS3 = [
+    { value: 'news', label: 'News' },
+    { value: 'pr', label: 'Pr' },
+    { value: 'blog', label: 'Blog' },
 ]
 
 const NewsFeed = () => {
@@ -75,6 +80,7 @@ const NewsFeed = () => {
     useEffect(() => {
         getNewsData()
     }, [api_url])
+    console.log(api_url, selectedCatagory)
 
 
     return (
@@ -95,23 +101,43 @@ const NewsFeed = () => {
                             setselectedSource(choice.value)
                             setapi_url(`http://127.0.0.1:8000/api/${choice.value}`)
                             setloading(false)
+                            setselectedCatagory('')
+                            setselectedAuthor('')
                         }}
                     />
                 </div>
-                <div className='form-control'>
-                    <label>Select by Category</label>
-                    <Select
-                        options={selectedSource === "news" ? selectByCatagory : selectByCatagoryS2}
-                        className="select-react"
-                        isClearable={false}
-                        onChange={(choice) => {
-                            setselectedCatagory(choice.value)
-                            setapi_url(`http://127.0.0.1:8000/api/${selectedSource}/${choice.value}${selectedAuthor ? `/${selectedAuthor}` : ''}`)
-                            setloading(false)
-                        }}
-                    />
-                </div>
-                <div className='form-control'>
+                {selectedSource === "news" || selectedSource === "NYTnews" ?
+                    <div className='form-control'>
+                        <label>Select by Category</label>
+                        <Select
+                            options={selectedSource === "news" ? selectByCatagory : selectByCatagoryS2}
+                            className="select-react"
+                            isClearable={false}
+                            onChange={(choice) => {
+                                setselectedCatagory(choice.value)
+                                setapi_url(`http://127.0.0.1:8000/api/${selectedSource}/${choice.value}${selectedAuthor ? `/${selectedAuthor.replace(/\s/g, '_')}` : ''}`)
+                                setloading(false)
+                            }}
+
+                        />
+                    </div>
+                    :
+                    <div className='form-control'>
+                        <label>Select by Category</label>
+                        <Select
+                            options={selectByCatagoryS3}
+                            className="select-react"
+                            isClearable={false}
+                            onChange={(choice) => {
+                                setselectedCatagory(choice.value)
+                                setapi_url(`http://127.0.0.1:8000/api/${selectedSource}/${choice.value}${selectedAuthor ? `/${selectedAuthor.replace(/\s/g, '_')}` : ''}`)
+                                setloading(false)
+                            }}
+
+                        />
+                    </div>
+                }
+                {selectedSource === "news" ? <div className='form-control'>
                     <label>Select by Aurthor</label>
                     <Select
                         options={authors}
@@ -122,17 +148,13 @@ const NewsFeed = () => {
                             setapi_url(`http://127.0.0.1:8000/api/${selectedCatagory ? selectedSource : 'newsbyAuthor'}${selectedCatagory ? `/${selectedCatagory}` : ''}/${choice.value.replace(/\s/g, '_')}`)
                             setloading(false)
                         }}
+                        isDisabled={!selectedSource === "news" ? true : false}
                     />
-                </div>
+                </div> : ''}
             </div>
 
             <div className='row m-0 pt-5'>
                 {loading && (getNews?.articles || []).map((data, index) => {
-                    {/* const imgUrl = data?.media[0]?.['media-metadata'][2]?.url;
-                    const imgUrl2 = data?.multimedia[1]?.url;
-                    console.log(imgUrl)
-                    console.log(imgUrl2) */}
-
                     return (
                         <div className=' col-lg-4 col-md-6 col-12 p-0 pb-3 news' key={index}>
                             <div className='card-main'>
@@ -143,8 +165,11 @@ const NewsFeed = () => {
                                         </div>
                                         <div className=''>
                                             {selectedSource === "news" ? <img src={data?.urlToImage || noImage} alt='' className='w-100 my-3 rounded-8px' /> : ''}
-                                            {selectedSource === "NYTnews" ? <> {!selectedCatagory ? <img src={data?.media[0]?.['media-metadata'][2]?.url || noImage} alt='' className='w-100 my-3 rounded-8px' /> : <img src={data?.multimedia[1]?.url || noImage} alt='' className='w-100 my-3 rounded-8px' />}</> : ''}
-                                            {/* {selectedSource === "NYTnews" ? <img src={data?.multimedia[1]?.url || noImage} alt='' className='w-100 my-3 rounded-8px' /> : ''} */}
+                                            {selectedSource === "NYTnews" ? <> {!selectedCatagory ?
+                                                <img src={data?.media[0]?.['media-metadata'][2]?.url || noImage} alt='' className='w-100 my-3 rounded-8px' />
+                                                :
+                                                <img src={data.multimedia === null ? noImage : data?.multimedia[1]?.url || noImage} alt='' className='w-100 my-3 rounded-8px' />}</> : ''}
+                                            {selectedSource === "get-articles" ? <img src={data?.image || noImage} alt='' className='w-100 my-3 rounded-8px' /> : ''}
 
 
                                             <div className='news-content'>
@@ -159,6 +184,8 @@ const NewsFeed = () => {
                     )
                 })}
             </div>
+
+
             <div className='row m-0 pt-5'>
                 {getNews && selectedAuthor && <div className=' col-lg-4 col-md-6 col-12 p-0 pb-3 news' >
                     <div className='card-main'>
